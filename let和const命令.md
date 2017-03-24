@@ -17,3 +17,16 @@ console.log(b);//1
 for(let i = 0; i<10; i++){//code}
 console.log(i)// i  is not defined
 ```
+[总结]上边代码中，计数器<code>i</code>只在<code>for</code>循环体内有效，在循环体外引用就会抱错，这样就避免了污染全局变量。
+
+```javascript
+    var a = [];
+    for(var i = 0;i<10;i++){
+        a[i] = function(){
+            console.log(i);
+        };
+    }
+    a(6)();//10
+```
+[总结]上边代码中，变量<code>i</code>是<code>var</code> 声明的，在全局范围内都有效，所以全局只有一个变量<code>i</code>。
+每一次循环
