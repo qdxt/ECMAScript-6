@@ -133,3 +133,113 @@ ES6 规定暂时性死区和<code>let、const</code>语句不出现变量提升�
 
 总之，暂时性死区的本质就是，只要一进入当前作用域，所要使用的变量就已经存在了，但是不可获取，只有等到声明变量的那一行代码出现，才可以获取和使用该变量。
 
+###不允许重复声明
+<code>let</code>不允许在相同作用域内，重复声明同一个变量
+```javascript
+    function (){
+        let a = 10;
+        var a = 1;
+    }//error
+
+    function(){
+        let a = 10;
+        let a = 17;
+    }//error
+```
+因此，不能再函数内部重新声明参数
+```javascript
+ function func(arg){
+     let arg;//error
+ }
+
+ function funcc(arg){
+     {
+         let arg;// 不报错
+     }
+ }
+```
+
+###块级作用域
+####为什么需要块级作用域？
+ES5只有全局作用域和函数作用域，没有块级作用域，这带来很多不合理的场景。
+
+第一种场景，内层变量可能会覆盖外层变量。
+```javascript
+var tmp = new Date();
+function f(){
+    console.log(tmp);
+    if(false){
+        var tmp = "hello";
+    }
+}
+f();//undefined
+```
+[总结]上面代码的原意是，if代码块的外部使用外层的tmp变量，内部使用内层的tmp变量。但是，函数f执行后，输出结果为undefined，原因在于变量提升，导致内层的tmp变量覆盖了外层的tmp变量。
+相当于以下代码
+```javascript
+    var tmp = new Date();
+    function f(){
+        var tmp = undefined;
+        console.log(tmp);
+        if(false){
+            tmp = "hello";
+        }
+    }
+    f();//undefined
+```
+问：为什么不用外部的变量tmp？ 
+答：因为内部声明了tmp变量 如果内部没有声明变量的话 那么久取外部的tmp的值
+
+第二种场景，用来计数的循环变量泄露为全局变量。
+
+```javascript
+ var s = "hello";
+ for(var i = 0; i<s.length; i++){
+     console.log(s[i]);// h e l l o
+ }
+ console.log(i)//5
+```
+[总结]上面代码中，变量i只用来控制循环，但是循环结束后，它并没有消失，泄漏成了全局变量。
+
+### ES6的块级作用域
+<code>let</code>世纪上为了JavaScript 新增了块级作用域。
+```javascript
+function f1(){
+    let n = 5;
+    if(true){
+        let n =10;
+    }
+    console.log(n);//5
+}
+```
+上面的函数有两个代码块，都声明了变量n，运行后输出5。这表示外层代码块不受内层代码块的影响。如果使用var定义变量n，最后输出的值就是10。
+ES6 允许块级作用域的任意嵌套。
+```javascript
+{{{let insance = "hello"}}}
+```
+上面代码用了3⃣️层嵌套
+```javascript
+ {{
+     {let a = 123;}
+     console.log(a);//error
+ }}
+```
+外层作用域无法访问内层作用域的变量
+
+块级作用域的出现，实际上使得获得广泛应用的立即执行函数表达式（IIFE）不再必要了。
+```javascript
+
+// IIFE 写法
+(function () {
+  var tmp = ...;
+  ...
+}());
+
+// 块级作用域写法
+{
+  let tmp = ...;
+  ...
+}
+```
+###块级作用域与函数声明
+函数能不能在块级作用域之中声明？这是一个令人混淆的问题。
