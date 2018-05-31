@@ -10,14 +10,18 @@ ES6新增加了<code>let</code>命令，用来声明变量。他的用法类似�
 console.log(a);// a is not defined
 console.log(b);//1
 ```
-[总结]: 上面代码在一个花括号（作用域）中，分别用<code>let</code>和<code>var</code>声明了两个变量。然后在花括号（作用域）之外调用这两个变量，结果<code>let</code>声明的变量报错，<code>var</code>声明的变量返回了正确的值。这表明 在ES6中花括号是一个块级作用域，块级作用域之外无法直接访问块级作用域之内的变量。
+[总结]: 上面代码在一个花括号（作用域）中，分别用<code>let</code>和<code>var</code>声明了两个变量。然后在花括号（作用域）之外调用这两个变量，结果<code>let</code>声明的变量报错，<code>var</code>声明的变量返回了正确的值。这表明 在ES6中花括号是一个块级作用域，块级作用域之外无法直接访问块级作用域之内的变量。在另一方面也表明了var声明的变量是一个全局变量（除非是在函数中）
 
 <code>for</code>循环的计数器，就很适合用<code>let</code>命令
 ```javascript
 for(let i = 0; i<10; i++){//code}
 console.log(i)// i  is not defined
 ```
-[总结]上边代码中，计数器<code>i</code>只在<code>for</code>循环体内有效，在循环体外引用就会抱错，这样就避免了污染全局变量。
+[总结]上边代码中，计数器<code>i</code>只在<code>for</code>循环体内有效，在循环体外引用就会抱错，这样就避免了污染全局变量。如果是用var那就是另一种情况，请看如下代码：
+```javascript
+    for(var i = 0; i<10; i++){//code}
+    console.log(i)//10这里的i其实是一个全局变量
+```
 
 ```javascript
     var a = [];
@@ -30,7 +34,17 @@ console.log(i)// i  is not defined
 ```
 [总结]上边代码中，变量<code>i</code>是<code>var</code> 声明的，在全局范围内都有效，所以全局只有一个变量<code>i</code>。
 每一次循环，变量<code>i</code>的值都会发生改变，而循环内被赋给数组<code><a>的<code>function</code>在运行时，会通过闭包读到这同一个变量<code>i</code>，导致最后输出的是最后一轮的<code>i</code>值，也就是10。
-
+[注意]可以更换一种方式，让我们能更好的理解：
+```javascript
+    var a = null;
+    for(var i = 0; i<10; i++){
+        a = function(){
+            console.log(i)
+        }
+    }
+    a();//10
+```
+[注意]：其实就是在循环体内声明一个函数，调用变量i的值，就相当于在外部调用i的值，这样就很好理解了(机智如我)
 ```javascript
     var a = [];
     for(let i = 0; i<10; i++){
@@ -51,8 +65,14 @@ console.log(i)// i  is not defined
     //abc
     //abc
 ```
-[总结]：上面代码输出了三次<code>abc</code>,表明函数内部的变量<code>i</code>和外部的变量<code>i</code>是分离的。
-
+[总结]：上面代码输出了三次<code>abc</code>,表明函数内部的变量<code>i</code>和外部的变量<code>i</code>是分离的，那么再看一下用var变量声明是一个什么样子的结果：
+```javascript
+    for(var i = 0; i<3; i++){
+        var i = 'abc';
+        console.log(i)// abc  
+    }
+```
+[总结]当在循环体内循环一次的时候输出abc 再去循环体内再次循环的时候发现i的值，已经变成了字符串abc 所以循环体不再成立，也就不再执行后续的代码操作
 ###不存在变量提升
 <code>var</code>命令会发生“变量提升”现象（Hoisting），即变量可以在声明之前使用，值为<code>undefined</code>。这种现象多多少少是有些奇怪的，按照一般的逻辑，变量应该在声明语句之后才可以使用。
 为了纠正这种现象， <code>let</code>命令改变了语法行为，它所声明的变量一定要在声明之后才能使用，否则就会报错。
